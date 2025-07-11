@@ -3,6 +3,7 @@ package com.beyond.basic.b1_hello.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 // Component 어노테이션을 통해 별도의 객체를 생성할 필요가 없는, 싱글톤 객체 생성
@@ -51,7 +52,7 @@ public class HelloController {
     @ResponseBody
     public String path(@PathVariable String inputId) {
         // 별도의 형변환 없이도, 매개변수에 타입 지정 시 자동 형변환 시켜줌
-//        long id = Long.parseLong(inputId);
+        // long id = Long.parseLong(inputId);
         System.out.println(inputId);
         return ("OK");
     }
@@ -67,4 +68,34 @@ public class HelloController {
          System.out.println(inputEmail);
         return ("OK");
      }
+
+     // case6. parameter가 많아질 경우, 데이터바인딩을 통해 input값 처리
+     // 데이터바인딩 : param을 사용하여 객체로 생성해줌
+    // ?name=hong&email=hong@naver.com
+    @GetMapping("/param3")
+    @ResponseBody
+//    public String param3(Hello hello) {
+    // ModelAttribute를 써도 되고 안 써도 되는데, 이 키워드를 써서 명시적으로 param형식의 데이터를 받겠다는 것을 표현
+    public String param3(@ModelAttribute Hello hello) {
+        System.out.println(hello);
+        return ("OK");
+    }
+
+    // case7. 서버에서 화면을 return, 사용자로부터 넘어오는 input을 활용하여 동적인 화면 생성
+    @GetMapping("/model-param")
+    public String modelParam(@RequestParam(value = "id")Long inputId, Model model){
+        // model 객체는 데이터를 화면에 전달해주는 역할
+        // name이라는 key에 hongildong이라는 value를 key:value형태로 화면에 전달
+        if (inputId == 1) {
+            model.addAttribute("name", "hongildong");
+            model.addAttribute("email", "hong@naver.com");
+        } else if (inputId == 2){
+            model.addAttribute("name", "hongildong2");
+            model.addAttribute("email", "hong2@naver.com");
+        }
+
+        return ("helloworld2");
+    }
+
+
 }
