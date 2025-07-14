@@ -149,7 +149,7 @@ public class HelloController {
     @ResponseBody
     // get요청에 url의 파라미터방식과 동일한 데이터 형식이므로, RequestParam 또는 데이터바인딩 방식 가능
     public String axiosMultiFileViewPost(@ModelAttribute Hello hello,
-                                   @RequestParam(value = "photos") List<MultipartFile> photos) {    // RequestParam이 총 3개가 됨
+                                         @RequestParam(value = "photos") List<MultipartFile> photos) {    // RequestParam이 총 3개가 됨
         System.out.println(hello);
         for (int i = 0; i < photos.size(); i++) {
             System.out.println(photos.get(i).getOriginalFilename());
@@ -160,7 +160,6 @@ public class HelloController {
     // case4. json 데이터 처리
     @GetMapping("/axios-json-view")
     public String axiosJsonView() {
-
         return ("axios-json-view");
     }
     @PostMapping("/axios-json-view")
@@ -174,7 +173,6 @@ public class HelloController {
     // case5. 중첩된 json 데이터 처리
     @GetMapping("/axios-nested-json-view")
     public String axiosNestedJsonView() {
-
         return ("axios-nested-json-view");
     }
     @PostMapping("/axios-nested-json-view")
@@ -190,13 +188,17 @@ public class HelloController {
     // 결론은 단순 json 구조가 아닌, multipart-formdata 구조 안에 json을 넣는 구조
     @GetMapping("/axios-json-file-view")
     public String axiosJsonFileView() {
-
         return ("axios-json-file-view");
     }
     @PostMapping("/axios-json-file-view")
     @ResponseBody
     // @RequestBody : json형식으로 데이터가 들어올 때, 객체로 자동 parsing (formdata형식이면 ModelAttribute)
-    public String axiosJsonFileView() {
+    public String axiosJsonFileView(
+            // json과 file을 함께 처리해야 할 때, RequestPart 일반적으로 활용
+            @RequestPart("hello") Hello hello,
+            @RequestPart("photo") MultipartFile photo) {
+        System.out.println(hello);
+        System.out.println(photo.getOriginalFilename());
 
         return ("OK");
     }
