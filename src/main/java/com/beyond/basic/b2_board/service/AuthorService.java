@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 // Transaction하고 롤백에 대한 추가설명 필요
 @Service    // 싱글톤 객체로 만들기 위한 어노테이션 사용
@@ -50,27 +51,33 @@ public class AuthorService {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
-        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getEmail(), authorCreateDto.getPassword());
+//        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getEmail(), authorCreateDto.getPassword());
+        // toEntity패턴을 통해 Author 객체 조립을 공통화
+        Author author = authorCreateDto.authorToEntity();
         this.authorMemoryRepository.save(author);
     }
 
     public List<AuthorListDto> findAll() {
-        List<Author> authorList = authorMemoryRepository.findAll();
-        List<AuthorListDto> dtoList = new ArrayList<>();
+//        List<Author> authorList = authorMemoryRepository.findAll();
+//
+//        for (Author author : authorList) {
+//            dtoList.add(new AuthorListDto(author.getId(), author.getName(), author.getEmail()));
+//            AuthorListDto dto = author.listFromEntity();
+//        }
+//        return (dtoList);
 
-        for (Author author : authorList) {
-            dtoList.add(new AuthorListDto(author.getId(), author.getName(), author.getEmail()));
-        }
-        return (dtoList);
+        return (authorMemoryRepository.findAll().stream()
+                .map(a -> a.listFromEntity()).collect(Collectors.toList()));
     }
 
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
-        Author author = authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("해당 유저가 존재하지 않습니다."));
-        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
+        Author author = authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
+//        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
+        AuthorDetailDto dto = author.detailFromEntity();
+        this.authorMemoryRepository.save(author);
 
         return (dto);
     }
-
 
 
     public void updatePassword(AuthorUpdatePwDto authorUpdatePwDto) {

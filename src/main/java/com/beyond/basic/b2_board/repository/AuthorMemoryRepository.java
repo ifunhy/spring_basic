@@ -12,10 +12,9 @@ import java.util.Optional;
 // 회원 정보를 저장/조회/삭제하는 역할
 public class AuthorMemoryRepository {
     private List<Author> authorList = new ArrayList<>();    // 왜 static을 안 썼지? -> Spring에 의해 싱글톤으로 생성되기 때문
-
     public static Long id = 1L; // 고유 ID를 생성하기 위한 정적 변수
 
-    public void save(Author author) {
+    public void save(Author author) {   // 저장할 때 리턴타입이 있을 수도, 없을 수도
         this.authorList.add(author);
         id++;
     }
