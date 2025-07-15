@@ -5,6 +5,7 @@ import com.beyond.basic.b2_board.dto.AuthorCreateDto;
 import com.beyond.basic.b2_board.dto.AuthorDetailDto;
 import com.beyond.basic.b2_board.dto.AuthorListDto;
 import com.beyond.basic.b2_board.dto.AuthorUpdatePwDto;
+import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,19 +43,20 @@ public class AuthorService {
     
     // 의존성주입(DI)방법3. RequiredArgsConstructor 어노테이션 사용
     // -> 반드시 초기화되어야 하는 필드(final 등)을 대상으로 생성자를 자동 생성, 다형성 설계는 불가
-    private final AuthorMemoryRepository authorMemoryRepository;
+//    private final AuthorMemoryRepository authorMemoryRepository;
+    private final AuthorJdbcRepository authorRepository;
 
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
 //        // 이메일 중복 검증
-        if (authorMemoryRepository.findByEmail(authorCreateDto.getEmail()).isPresent()) {
+        if (authorRepository.findByEmail(authorCreateDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
 //        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getEmail(), authorCreateDto.getPassword());
         // toEntity패턴을 통해 Author 객체 조립을 공통화
         Author author = authorCreateDto.authorToEntity();
-        this.authorMemoryRepository.save(author);
+        this.authorRepository.save(author);
     }
 
     public List<AuthorListDto> findAll() {
@@ -66,15 +68,16 @@ public class AuthorService {
 //        }
 //        return (dtoList);
 
-        return (authorMemoryRepository.findAll().stream()
+        return (authorRepository.findAll().stream()
                 .map(a -> a.listFromEntity()).collect(Collectors.toList()));
     }
 
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
-        Author author = authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
+        Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
 //        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
         AuthorDetailDto dto = author.detailFromEntity();
-        this.authorMemoryRepository.save(author);
+//        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
+        this.authorRepository.save(author);
 
         return (dto);
     }
@@ -82,14 +85,14 @@ public class AuthorService {
 
     public void updatePassword(AuthorUpdatePwDto authorUpdatePwDto) {
         // 기존의 password를 newPassword로 교체
-        Author author = authorMemoryRepository.findByEmail(authorUpdatePwDto.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 email입니다."));
+        Author author = authorRepository.findByEmail(authorUpdatePwDto.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 email입니다."));
         author.updatePw(authorUpdatePwDto.getPassword());
     }
 
     public void delete(Long id) {
-        authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 사용자입니다."));
+        authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 사용자입니다."));
         // id만 던져놓고 레포지토리에서 리스트 삭제 처리
-        authorMemoryRepository.delete(id);
+        authorRepository.delete(id);
     }
 
 }
