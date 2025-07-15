@@ -9,6 +9,7 @@ import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +19,9 @@ import java.util.stream.Collectors;
 
 // Transaction하고 롤백에 대한 추가설명 필요
 @Service    // 싱글톤 객체로 만들기 위한 어노테이션 사용
-// 트랜잭션 처리가 없는 경우 -> @Component로 대체 가능
-@RequiredArgsConstructor
-// 비즈니스 로직 처리
-// Controller에서 받은 요청을 처리하는 실제 로직이 작성되는 클래스
-public class AuthorService {
+@RequiredArgsConstructor    // 트랜잭션 처리가 없는 경우 -> @Component로 대체 가능
+@Transactional  //  스프링에서 메소드 단위로 트랜잭션 처리를 하고, 만약 예외(unchecked)발생 시 자동 롤백처리 지원
+public class AuthorService {    // Controller에서 받은 요청을 처리하는 실제 로직이 작성되는 클래스
 
 //    // 의존성주입(DI)방법1. Autowired 어노테이션 사용 -> 필드 주입
 //    // 싱글톤 객체를 내가 가져다 쓰겠다
@@ -49,7 +48,7 @@ public class AuthorService {
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
 //        // 이메일 중복 검증
-        if (authorRepository.findByEmail(authorCreateDto.getEmail()).isPresent()) {
+        if (authorRepository.findByEmail(authorCreateDto.getEmail()).isPresent()) { // isPresent() : null 판단
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
@@ -59,6 +58,8 @@ public class AuthorService {
         this.authorRepository.save(author);
     }
 
+    // 트랜잭션이 필요없는 경우, 아래와 같이 명시적으로 제외
+    @Transactional(readOnly = true)
     public List<AuthorListDto> findAll() {
 //        List<Author> authorList = authorMemoryRepository.findAll();
 //
@@ -72,6 +73,7 @@ public class AuthorService {
                 .map(a -> a.listFromEntity()).collect(Collectors.toList()));
     }
 
+    @Transactional(readOnly = true)
     public AuthorDetailDto findById(Long id) throws NoSuchElementException{
         Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
 //        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
