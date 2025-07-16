@@ -5,8 +5,9 @@ import com.beyond.basic.b2_board.dto.AuthorCreateDto;
 import com.beyond.basic.b2_board.dto.AuthorDetailDto;
 import com.beyond.basic.b2_board.dto.AuthorListDto;
 import com.beyond.basic.b2_board.dto.AuthorUpdatePwDto;
-import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
-import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
+//import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
+//import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
+import com.beyond.basic.b2_board.repository.AuthorMybatisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +40,12 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 //    public AuthorService(AuthorMemoryRepository authorRepository) {
 //        this.authorRepository = authorRepository;
 //    }
-    
+
     // 의존성주입(DI)방법3. RequiredArgsConstructor 어노테이션 사용
     // -> 반드시 초기화되어야 하는 필드(final 등)을 대상으로 생성자를 자동 생성, 다형성 설계는 불가
 //    private final AuthorMemoryRepository authorMemoryRepository;
-    private final AuthorJdbcRepository authorRepository;
+//    private final AuthorJdbcRepository authorRepository;
+    private final AuthorJpaRepository authorRepository;
 
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
@@ -61,6 +63,8 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
     // 트랜잭션이 필요없는 경우, 아래와 같이 명시적으로 제외
     @Transactional(readOnly = true)
     public List<AuthorListDto> findAll() {
+        return (authorRepository.findAll().stream().map(a -> a.listFromEntity()).collect(Collectors.toList()));
+
 //        List<Author> authorList = authorMemoryRepository.findAll();
 //
 //        for (Author author : authorList) {
@@ -69,18 +73,16 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 //        }
 //        return (dtoList);
 
-        return (authorRepository.findAll().stream()
-                .map(a -> a.listFromEntity()).collect(Collectors.toList()));
     }
 
     @Transactional(readOnly = true)
-    public AuthorDetailDto findById(Long id) throws NoSuchElementException{
+    public AuthorDetailDto findById(Long id) throws NoSuchElementException {
         Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
-//        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
-        AuthorDetailDto dto = author.detailFromEntity();
-//        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
-        this.authorRepository.save(author);
+        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
 
+//        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
+//        AuthorDetailDto dto = author.detailFromEntity();
+//        this.authorRepository.save(author);
         return (dto);
     }
 
