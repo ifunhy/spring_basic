@@ -3,8 +3,7 @@ package com.beyond.basic.b2_board.domain;
 import com.beyond.basic.b2_board.dto.AuthorDetailDto;
 import com.beyond.basic.b2_board.dto.AuthorListDto;
 import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +20,14 @@ import lombok.ToString;
 // 회원 한 명의 정보를 담는 도메인 객체(Entity)
 public class Author {
     @Id     // pk 설정
+    // identity : auto_increment, auto : id 생성전략을 jpa에게 자동설정하도록 위임하는 것
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    // 컬럼에 별다른 설정이 없을 경우 default varchar(255)
     private String name;
+    @Column(length = 50, unique = true, nullable = false)   // 길이 50 한도, unique, notnull 설정
     private String email;
+//    @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 개발의 혼선을 줄일 수 있음
     private String password;
 //    private String test;
 //    private String test2;

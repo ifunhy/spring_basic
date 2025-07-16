@@ -7,7 +7,9 @@ import com.beyond.basic.b2_board.dto.AuthorListDto;
 import com.beyond.basic.b2_board.dto.AuthorUpdatePwDto;
 //import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 //import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
+import com.beyond.basic.b2_board.repository.AuthorJpaRepository;
 import com.beyond.basic.b2_board.repository.AuthorMybatisRepository;
+import com.beyond.basic.b2_board.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +47,8 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
     // -> 반드시 초기화되어야 하는 필드(final 등)을 대상으로 생성자를 자동 생성, 다형성 설계는 불가
 //    private final AuthorMemoryRepository authorMemoryRepository;
 //    private final AuthorJdbcRepository authorRepository;
-    private final AuthorJpaRepository authorRepository;
+//    private final AuthorJpaRepository authorRepository;
+    private final AuthorRepository authorRepository;
 
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
@@ -87,16 +90,18 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
     }
 
 
+    // 상단의 @Transactional 어노테이션으로 인해 자동으로 업데이트 됨
     public void updatePassword(AuthorUpdatePwDto authorUpdatePwDto) {
         // 기존의 password를 newPassword로 교체
         Author author = authorRepository.findByEmail(authorUpdatePwDto.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 email입니다."));
+        // dirty checking : 객체를 수정한 후 별도의 update쿼리 발생시키지 않아도, 영속성 컨텍스트에 의해 객체 변경사항 자동 DB 반영
         author.updatePw(authorUpdatePwDto.getPassword());
     }
 
     public void delete(Long id) {
-        authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 사용자입니다."));
+        Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 사용자입니다."));
         // id만 던져놓고 레포지토리에서 리스트 삭제 처리
-        authorRepository.delete(id);
+        authorRepository.delete(author);
     }
 
 }
