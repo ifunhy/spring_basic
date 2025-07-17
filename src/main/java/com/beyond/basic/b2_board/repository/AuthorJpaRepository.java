@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public class AuthorJpaRepository {
-    @Autowired  // 생성자주입 방식으로 DI
+    @Autowired
     private EntityManager entityManager;
 
     public void save(Author author) {

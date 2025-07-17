@@ -8,6 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.ibatis.annotations.Update;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
@@ -29,8 +34,11 @@ public class Author {
     private String email;
 //    @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 개발의 혼선을 줄일 수 있음
     private String password;
-//    private String test;
-//    private String test2;
+    // 컬럼명에 캐멀케이스 사용 시, DB에는 created_time으로 컬럼 생성
+    @CreationTimestamp
+    private LocalDateTime createdTime;  // 등록시간
+    @UpdateTimestamp
+    private LocalDateTime updatedTime;  // 업데이트시간
 
     public Author(String name, String email, String password) {
 //        this.id = AuthorMemoryRepository.id;    // 회원마다 고유한 ID 부여, id를 static 으로 세팅해놔서 이렇게 작성함
