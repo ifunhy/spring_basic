@@ -1,14 +1,9 @@
-package com.beyond.basic.b2_board.domain;
+package com.beyond.basic.b2_board.author.domain;
 
-import com.beyond.basic.b2_board.dto.AuthorDetailDto;
-import com.beyond.basic.b2_board.dto.AuthorListDto;
-import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
+import com.beyond.basic.b2_board.author.dto.AuthorDetailDto;
+import com.beyond.basic.b2_board.author.dto.AuthorListDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.apache.ibatis.annotations.Update;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,6 +17,7 @@ import java.time.LocalDateTime;
 // JPA의 EntityManager에게 객체를 위임하기 위한 어노테이션
 // EntityManager는 영속성컨텍스트(Entity의 현재상황)를 통해 DB 데이터 관리
 @Entity
+@Builder    // Builder어노테이션을 통해 유연하게 객체 생성 가능
 // 회원 한 명의 정보를 담는 도메인 객체(Entity)
 public class Author {
     @Id     // pk 설정
@@ -34,28 +30,40 @@ public class Author {
     private String email;
 //    @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 개발의 혼선을 줄일 수 있음
     private String password;
+    @Enumerated(EnumType.STRING)
+    @Builder.Default    // Builder 패턴에서 변수 초기화(디폴트값) 시 Builder.Default어노테이션 필수
+    private Role role = Role.USER;  // default를 USER로 설정
     // 컬럼명에 캐멀케이스 사용 시, DB에는 created_time으로 컬럼 생성
     @CreationTimestamp
     private LocalDateTime createdTime;  // 등록시간
     @UpdateTimestamp
     private LocalDateTime updatedTime;  // 업데이트시간
 
-    public Author(String name, String email, String password) {
-//        this.id = AuthorMemoryRepository.id;    // 회원마다 고유한 ID 부여, id를 static 으로 세팅해놔서 이렇게 작성함
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
+//    // @Builder 어노테이션 실습을 위한 주석처리
+//    public Author(String name, String email, String password) {
+////        this.id = AuthorMemoryRepository.id;    // 회원마다 고유한 ID 부여, id를 static 으로 세팅해놔서 이렇게 작성함
+//        this.name = name;
+//        this.email = email;
+//        this.password = password;
+//    }
+//
+//    public Author(String name, String email, String password, Role role) {
+////        this.id = AuthorMemoryRepository.id;    // 회원마다 고유한 ID 부여, id를 static 으로 세팅해놔서 이렇게 작성함
+//        this.name = name;
+//        this.email = email;
+//        this.password = password;
+//        this.role = role;
+//    }
 
     public void updatePw(String password) {
         this.password = password;
     }
 
     public AuthorDetailDto detailFromEntity() {
-        return (new AuthorDetailDto(this.id, this.name, this.email));
+        return (new AuthorDetailDto(this.id, this.name, this.email, this.role));
     }
 
     public AuthorListDto listFromEntity() {
-        return (new AuthorListDto(this.id, this.name, this.email));
+        return (new AuthorListDto(this.id, this.name, this.email, this.role));
     }
 }

@@ -1,16 +1,16 @@
-package com.beyond.basic.b2_board.Controller;
+package com.beyond.basic.b2_board.author.controller;
 
-import com.beyond.basic.BasicApplication;
-import com.beyond.basic.b2_board.domain.Author;
-import com.beyond.basic.b2_board.dto.*;
-import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
-import com.beyond.basic.b2_board.service.AuthorService;
+import com.beyond.basic.b2_board.author.dto.AuthorCreateDto;
+import com.beyond.basic.b2_board.author.dto.AuthorListDto;
+import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDto;
+import com.beyond.basic.b2_board.author.dto.CommonErrorDto;
+import com.beyond.basic.b2_board.author.dto.*;
+import com.beyond.basic.b2_board.author.service.AuthorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -28,7 +28,8 @@ public class AuthorController {
 
     // 회원가입
     @PostMapping("/create")
-    public ResponseEntity<String> save(@RequestBody AuthorCreateDto authorCreateDto) {
+    // dto에 있는 validation어노테이션과 controller @Valid 한쌍
+    public ResponseEntity<String> save(@Valid @RequestBody AuthorCreateDto authorCreateDto) {
 //        try {
 //            this.authorService.save(authorCreateDto);
 //            return (new ResponseEntity<>("OK", HttpStatus.CREATED));
@@ -39,6 +40,7 @@ public class AuthorController {
 //        }
         // ControllerAdvice가 없었으면 위와 같이 개별적인 예외처리가 필요하나, 이제는 전역적인 예외처리가 가능
         this.authorService.save(authorCreateDto);
+
         return (new ResponseEntity<>("OK", HttpStatus.CREATED));
     }
     // postman으로 데이터 요청

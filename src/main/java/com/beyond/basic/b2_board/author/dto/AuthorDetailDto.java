@@ -1,6 +1,7 @@
-package com.beyond.basic.b2_board.dto;
+package com.beyond.basic.b2_board.author.dto;
 
-import com.beyond.basic.b2_board.domain.Author;
+import com.beyond.basic.b2_board.author.domain.Author;
+import com.beyond.basic.b2_board.author.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,9 +15,10 @@ public class AuthorDetailDto {
     private Long id;
     private String name;
     private String email;
+    private Role role;
     
     // 1개의 entity로만 dto가 조립되는 것이 아니기 때문에, dto계층에서 fromEntity를 설계
     public static AuthorDetailDto fromEntity(Author author) {
-        return (new AuthorDetailDto(author.getId(), author.getName(), author.getEmail()));
+        return (new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getRole()));
     }
 }
