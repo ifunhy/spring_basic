@@ -20,7 +20,11 @@ public class Post {
 
     @Column(length = 3000)
     private String contents;
-    
-    @JoinColumn(name = "author_id") // fk 관계성 설정
+
+    // FK 설정 시 ManyToOne 필수
+    // ManyToOne에서는 default값이 fetch EAGER(즉시로딩) : author객체를 사용하지 않아도 author테이블로 쿼리발생
+    // 그래서, 일반적으로 fetch LAZY(지연로딩) 설정 : author객체를 사용하지 않는 한, author객체로 쿼리발생 X
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id") // fk 관계성 설정(name = "DB컬럼명")
     private Author author;
 }

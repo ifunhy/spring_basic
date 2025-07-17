@@ -32,15 +32,19 @@ public class PostService {
 
 
     public void save(PostCreateDto dto) {
+        Author author = authorRepository.findById(dto.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         // authorId의 존재 여부 검증 필요
-        postRepository.save(dto.toEntity());
+        postRepository.save(dto.toEntity(author));  // author 객체를 넘겨줌
     }
 
     public PostDetailDto findById(Long id) {
         Post post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 ID입니다."));
-        Author author = authorRepository.findById(post.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
-
-        return (PostDetailDto.fromEntity(post, author));
+//        // 엔티티 간의 관계성 설정을 하지 않았을 때
+//        Author author = authorRepository.findById(post.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+//        return (PostDetailDto.fromEntity(post, author));
+        
+        // 엔티티 간의 관계성 설정을 통해 Author객체를 쉽게 조회하는 경우
+        return (PostDetailDto.fromEntity(post));    // post 안에 author가 들어가 있어서 post만 넘겨도 됨
     }
 
     public List<PostListDto> findAll() {

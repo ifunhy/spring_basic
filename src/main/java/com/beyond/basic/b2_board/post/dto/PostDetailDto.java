@@ -17,12 +17,23 @@ public class PostDetailDto {
     private String contents;
     private String authorEmail; // 조회 시 사용자의 id를 email로 보여주기 위함
 
-    public static PostDetailDto fromEntity(Post post, Author author) {
-        return (PostDetailDto.builder()
+    // 관계성 설정을 하지 않았을 때
+//    public static PostDetailDto fromEntity(Post post, Author author) {
+//        return (PostDetailDto.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .contents(post.getContents())
+//                .authorEmail(author.getEmail())
+//                .build());
+//    }
+
+    // 관계성 설정을 했을 때
+    public static PostDetailDto fromEntity(Post post) {
+        return PostDetailDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .contents(post.getContents())
-                .authorEmail(author.getEmail())
-                .build());
+                .authorEmail(post.getAuthor().getEmail())
+                .build();
     }
 }
