@@ -9,6 +9,10 @@ import com.beyond.basic.b2_board.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +39,10 @@ public class PostController {
 
     // 강사님 코드
     @GetMapping("/list")
-    public ResponseEntity<?> postList() {
-        List<PostListDto> dto =postService.findAll();
+    // 페이징처리를 위한 데이터 요청 형식 : localhost:8080/post/list -> default값이 페이지 객체 안으로 들어감
+    // 페이징처리를 위한 데이터 요청 형식 : localhost:8080/post/list?page=0&size=20&sort=title,asc -> 파라미터를 받아주는 형식으로 들어감
+    public ResponseEntity<?> postList(@PageableDefault(size=10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable)  {
+        Page<PostListDto> dto =postService.findAll(pageable);
         return (new ResponseEntity<>(new CommonDto(dto, HttpStatus.OK.value(),"OK"), HttpStatus.OK));
     }
 

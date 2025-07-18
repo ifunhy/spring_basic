@@ -33,7 +33,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p inner join fetch p.author")
     List<Post> findAllFetchJoin();
 
-    // paging 처리 + delyn 적용
-    Page<Post> findAll(Pageable pageable)   // Pageable 은 org.springframework.data.domain.Pageable 로 import
+    // paging 처리
+    // Pageable 은 org.springframework.data.domain.Pageable 로 import
+    // Page객체 안에 List<Post> 포함, 전체 페이지 수 등의 정보 포함
+    // Pageable 객체 안에는 페이지size, 페이지번호, 정렬기준 등이 포함
+//    Page<Post> findAll(Pageable pageable);
+    // paging 처리 + delYn 적용
+    Page<Post> findAllByDelYn(Pageable pageable, String delYn);
 }
-// Author Id를 join하여 db에서 끌어와서 여기에 가져오는?
