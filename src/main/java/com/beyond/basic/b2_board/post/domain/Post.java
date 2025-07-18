@@ -1,6 +1,7 @@
 package com.beyond.basic.b2_board.post.domain;
 
 import com.beyond.basic.b2_board.author.domain.Author;
+import com.beyond.basic.b2_board.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @ToString
-public class Post {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,6 +21,8 @@ public class Post {
 
     @Column(length = 3000)
     private String contents;
+
+    private String delYn;
 
     // FK 설정 시 ManyToOne 필수
     // ManyToOne에서는 default값이 fetch EAGER(즉시로딩) : author객체를 사용하지 않아도 author테이블로 쿼리발생

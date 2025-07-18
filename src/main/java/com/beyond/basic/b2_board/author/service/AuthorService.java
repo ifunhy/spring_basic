@@ -8,6 +8,8 @@ import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDto;
 //import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 //import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
+import com.beyond.basic.b2_board.post.domain.Post;
+import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 //    private final AuthorJdbcRepository authorRepository;
 //    private final AuthorJpaRepository authorRepository;
     private final AuthorRepository authorRepository;
+    private final PostRepository postRepository;
 
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
@@ -77,11 +80,18 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
     @Transactional(readOnly = true)
     public AuthorDetailDto findById(Long id) throws NoSuchElementException {
         Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
-        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
 
 //        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
 //        AuthorDetailDto dto = author.detailFromEntity();
 //        this.authorRepository.save(author);
+        
+        // 연관관계 설정 없이 직접 조회해서 count값 찾는 경우
+//        List<Post> postList = postRepository.findByAuthor(author);
+//        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author, postList.size());
+        
+        // OneToMany 설정을 통해 count값 찾는 경우
+          AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
+
         return (dto);
     }
 

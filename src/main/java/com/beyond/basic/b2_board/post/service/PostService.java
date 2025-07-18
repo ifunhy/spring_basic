@@ -52,7 +52,12 @@ public class PostService {
 //        return (postRepository.findAll().stream().map(PostListDto::fromEntity).collect(Collectors.toList()));
 
         // 강사님 코드
-        List<Post> postList = postRepository.findAll();
+        // stream()으로 한줄 한줄 돌면서 조회
+//        List<Post> postList = postRepository.findAll(); // 일반 전체 조회
+        List<Post> postList = postRepository.findAllJoin(); // 일반 inner join
+//        List<Post> postList = postRepository.findAllFetchJoin();    // inner join fetch
+        // postList를 조회할 때 참조관계에 있는 author까지 조회하게 되므로, N(author쿼리)+1(post쿼리)문제 발생
+        // jpa는 기본방향성이 fetch lazy이므로, 참조하는 시점에 쿼리를 내보내게 되어, 직접 JOIN문을 만들어주지 않고, N+1문제 발생
         return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));
     }
 
