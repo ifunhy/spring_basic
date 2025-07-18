@@ -32,6 +32,11 @@ spring:
 #      콘솔창에 ddl, dml 등의 쿼리를 출력하여 보여주는 옵션
     show-sql: true
 
+logging:
+  level:
+    # error 로그 출력
+    root: error
+
 # mapper파일(mybatis의 쿼리파일)의 위치를 명시하고 scan. 기본적으로 resource폴더는 default
 mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
