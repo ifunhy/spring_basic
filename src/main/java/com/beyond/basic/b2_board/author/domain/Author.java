@@ -42,9 +42,15 @@ public class Author extends BaseTimeEntity {
     // OneToMany는 선택사항, 또한 default가 lazy
     // 1:n 관계, mappedBy 어디가와 매핑되어 있다
     // mappedBy에는 ManyToOne쪽에 변수명을 문자열로 지정. FK 관리를 반대편(post)쪽에서 한다는 의미 -> 연관관계의 주인 설정
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    // cascade : 부모객체의 변화에 따라 자식객체가 같이 변하는 옵션 1)persist : 저장   2)remove : 삭제
+//    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)  // orphanRemoval = true를 위한 주석처리
+    // 자식의 자식까지 모두 삭제할 경우 orphanRemoval = true 옵션 추가
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     List<Post> postList = new ArrayList<>();    //@OneToMany 쓸 때 List 초기화 필수
+    
+    @OneToOne(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)  // mappedBy = "author" (Address 쪽에 쓰인 이름을 사용)
+    private Address address;
 
 //    // @Builder 어노테이션 실습을 위한 주석처리
 //    public Author(String name, String email, String password) {

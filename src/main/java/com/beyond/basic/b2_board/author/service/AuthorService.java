@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 // Transaction하고 롤백에 대한 추가설명 필요
 @Service    // 싱글톤 객체로 만들기 위한 어노테이션 사용
 @RequiredArgsConstructor    // 트랜잭션 처리가 없는 경우 -> @Component로 대체 가능
-@Transactional  //  스프링에서 메소드 단위로 트랜잭션 처리를 하고, 만약 예외(unchecked)발생 시 자동 롤백처리 지원
+@Transactional  //  스프링에서 메소드 단위로 트랜잭션처리(commit)를 하고, 만약 예외(unchecked)발생 시 자동 롤백처리 지원
 public class AuthorService {    // Controller에서 받은 요청을 처리하는 실제 로직이 작성되는 클래스
 
 //    // 의존성주입(DI)방법1. Autowired 어노테이션 사용 -> 필드 주입
@@ -56,13 +56,29 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
         }
 
+
 //        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getEmail(), authorCreateDto.getPassword());
         // toEntity패턴을 통해 Author 객체 조립을 공통화
         Author author = authorCreateDto.authorToEntity();
+//        this.authorRepository.save(author);  // cascading 테스트를 위한 주석처리
+//        Author dbAuthor = this.authorRepository.save(author); // 저장하고 나서 db를 다시 조회한 값을 저장
+
+        // cascading 테스트 : 회원이 생성될 때, 곧바로 "가입인사" 글을 생성하는 상황
+        // 방법 2가지
+        // 방법 1. 직접 POST객체 생성 후 저장
+        Post post = Post.builder()
+                .title("안녕하세요.")
+                .contents(authorCreateDto.getName() + "입니다. 반갑습니다.")
+                // author객체가 db에 save되는 순간 EntityManager와 영속성컨텍스트에 의해 author객체에도 id값 생성
+                .author(author)
+                .build();
+//        postRepository.save(post);
+        // 방법 2. cascade옵션 활용
+        author.getPostList().add(post);
         this.authorRepository.save(author);
     }
 
-    // 트랜잭션이 필요없는 경우, 아래와 같이 명시적으로 제외
+    // 트랜잭션이 필요없는 경우, 아래와 같이 명시적으로 제외 -> 성능적으로 유리
     @Transactional(readOnly = true)
     public List<AuthorListDto> findAll() {
         return (authorRepository.findAll().stream().map(a -> a.listFromEntity()).collect(Collectors.toList()));

@@ -28,7 +28,8 @@ public class AuthorController {
 
     // 회원가입
     @PostMapping("/create")
-    // dto에 있는 validation어노테이션과 controller @Valid 한쌍
+    // dto에 있는 validation(검증용) 어노테이션(@NotEmpty @Size 등)과 controller @Valid 한쌍
+    // 이걸 붙이면, Spring이 MemberCreateDto 안의 검증 어노테이션을 자동으로 실행
     public ResponseEntity<String> save(@Valid @RequestBody AuthorCreateDto authorCreateDto) {
 //        try {
 //            this.authorService.save(authorCreateDto);

@@ -70,8 +70,8 @@ public class PostService {
         
         // 페이지처리 findAll 호출 + delYn 처리
         Page<Post> postList = postRepository.findAllByDelYn(pageable, "N");
-//        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));
-        return (postList.map(a -> PostListDto.fromEntity(a)));  // 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
+//        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));  // collect 로 형변환
+        return (postList.map(a -> PostListDto.fromEntity(a)));  // 리턴타입이 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
 
     }
 

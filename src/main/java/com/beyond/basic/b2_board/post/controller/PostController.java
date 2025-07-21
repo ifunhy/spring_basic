@@ -41,6 +41,7 @@ public class PostController {
     @GetMapping("/list")
     // 페이징처리를 위한 데이터 요청 형식 : localhost:8080/post/list -> default값이 페이지 객체 안으로 들어감
     // 페이징처리를 위한 데이터 요청 형식 : localhost:8080/post/list?page=0&size=20&sort=title,asc -> 파라미터를 받아주는 형식으로 들어감
+    // 요청을 ?& 라고 호출하고 있기 때문에 파라미터를 받아주는 형식인 것
     public ResponseEntity<?> postList(@PageableDefault(size=10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable)  {
         Page<PostListDto> dto =postService.findAll(pageable);
         return (new ResponseEntity<>(new CommonDto(dto, HttpStatus.OK.value(),"OK"), HttpStatus.OK));
