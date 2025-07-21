@@ -15,7 +15,7 @@ public class SecurityConfig {
 
     // 내가 만든 객체는 @Component, 외부 라이브러리를 활용한 객체는 @Bean+ @Configuration
     // @Bean은 메소드 위에 붙여 return 되는 객체를 싱글톤 객체로 생성
-    // @Component는 클래스 위에 붙여 클래스 자체를 싱글톤 객채로 생성
+    // @Component는 클래스 위에 붙여 클래스 자체를 싱글톤 객체로 생성
     // filter계층에서 filter로직을 커스텀
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
