@@ -1,11 +1,14 @@
 package com.beyond.basic.b2_board.author.controller;
 
+import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.dto.AuthorCreateDto;
 import com.beyond.basic.b2_board.author.dto.AuthorListDto;
 import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDto;
 import com.beyond.basic.b2_board.author.dto.CommonErrorDto;
 import com.beyond.basic.b2_board.author.dto.*;
 import com.beyond.basic.b2_board.author.service.AuthorService;
+import com.beyond.basic.b2_board.common.JwtTokenFilter;
+import com.beyond.basic.b2_board.common.JwtTokenProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,6 +28,7 @@ import java.util.*;
 public class AuthorController {
 
     private final AuthorService authorService;  // 서비스 주입 받기
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 회원가입
     @PostMapping("/create")
@@ -44,7 +48,17 @@ public class AuthorController {
 
         return (new ResponseEntity<>("OK", HttpStatus.CREATED));
     }
-    // postman으로 데이터 요청
+
+    // 로그인
+    @PostMapping("/doLogin")
+    public ResponseEntity<?> doLogin(@RequestBody AuthorLoginDto dto) {   // ResponseEntity 안에는 토큰이 담겨야 함
+        Author author = authorService.doLogin(dto);
+        // 토큰 생성 및 return
+        String token = jwtTokenProvider.createAtToken(author);
+
+        return (new ResponseEntity<>(new CommonDto(token, HttpStatus.OK.value(), "token is created")
+                , HttpStatus.OK));
+    }
 
     // 회원목록조회 : url 패턴("/author/list")
     @GetMapping("/list")

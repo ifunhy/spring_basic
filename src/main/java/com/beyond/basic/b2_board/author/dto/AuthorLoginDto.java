@@ -1,14 +1,15 @@
 package com.beyond.basic.b2_board.author.dto;
 
+import com.beyond.basic.b2_board.author.domain.Author;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-// 비밀번호 수정 요청 DTO
-public class AuthorUpdatePwDto {
+@Data
+public class AuthorLoginDto {
     private String email;
-    private String password;  
+    private String password;
 }

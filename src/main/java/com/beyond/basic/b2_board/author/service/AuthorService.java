@@ -1,21 +1,20 @@
 package com.beyond.basic.b2_board.author.service;
 
 import com.beyond.basic.b2_board.author.domain.Author;
-import com.beyond.basic.b2_board.author.dto.AuthorCreateDto;
-import com.beyond.basic.b2_board.author.dto.AuthorDetailDto;
-import com.beyond.basic.b2_board.author.dto.AuthorListDto;
-import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDto;
+import com.beyond.basic.b2_board.author.dto.*;
 //import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
 //import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 // Transaction하고 롤백에 대한 추가설명 필요
@@ -48,6 +47,7 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 //    private final AuthorJpaRepository authorRepository;
     private final AuthorRepository authorRepository;
     private final PostRepository postRepository;
+    private final PasswordEncoder passwordEncoder;    // 암호화를 할 수 있는 클래스
 
     // 객체조립은 서비스 담당
     public void save(AuthorCreateDto authorCreateDto) {
@@ -59,7 +59,8 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 
 //        Author author = new Author(authorCreateDto.getName(), authorCreateDto.getEmail(), authorCreateDto.getPassword());
         // toEntity패턴을 통해 Author 객체 조립을 공통화
-        Author author = authorCreateDto.authorToEntity();
+        String encordedPassword = passwordEncoder.encode(authorCreateDto.getPassword());
+        Author author = authorCreateDto.authorToEntity(encordedPassword);
 //        this.authorRepository.save(author);  // cascading 테스트를 위한 주석처리
 //        Author dbAuthor = this.authorRepository.save(author); // 저장하고 나서 db를 다시 조회한 값을 저장
 
@@ -76,6 +77,26 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
         // 방법 2. cascade옵션 활용
         author.getPostList().add(post);
         this.authorRepository.save(author);
+    }
+
+    // 로그인
+    public Author doLogin(AuthorLoginDto dto) {
+        Optional<Author> optionalAuthor = authorRepository.findByEmail(dto.getEmail());
+        boolean check = true;
+
+        if (!optionalAuthor.isPresent()) {
+            check = false;
+        } else {
+            // 비밀번호 일치여부 검증 (각각 암호화 시킨 후 비교) : matches 함수를 통해 암호화되지 않은 값을 다시 암호화하여 DB의 password를 검증
+            if (!passwordEncoder.matches(dto.getPassword(), optionalAuthor.get().getPassword())) {
+                check = false;
+            }
+        }
+        if (!check) {
+            System.out.println("로그인 실패");
+            throw new IllegalArgumentException("email 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return (optionalAuthor.get());
     }
 
     // 트랜잭션이 필요없는 경우, 아래와 같이 명시적으로 제외 -> 성능적으로 유리
@@ -125,5 +146,7 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
         // id만 던져놓고 레포지토리에서 리스트 삭제 처리
         authorRepository.delete(author);
     }
+
+
 
 }

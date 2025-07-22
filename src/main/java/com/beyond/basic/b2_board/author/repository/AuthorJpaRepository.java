@@ -55,4 +55,16 @@ public class AuthorJpaRepository {
             entityManager.remove(author);
         }
     }
+
+    // 비밀번호 찾기
+    public Optional<Author> findByPassword(String password) {
+        Author author = null;
+        try {
+            author = entityManager.createQuery("select a from Author a where a.password = :password", Author.class)
+                    .setParameter("password", password).getSingleResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return (Optional.ofNullable(author));
+    }
 }

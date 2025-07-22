@@ -29,9 +29,14 @@ public class AuthorCreateDto {
 //        return (new Author(this.name, this.email, this.password, this.role));
 //    }
 
-    public Author authorToEntity() {
+    public Author authorToEntity(String encodedPassword) {
         // @Builder 패턴은 매개변수의 개수와 매개변수의 순서에 상관없이 객체 생성 가능
-        return (Author.builder().name(this.name).password(this.password).email(this.email).role(this.role).build()
+        return (Author.builder()
+                .name(this.name)
+                .password(encodedPassword)
+                .email(this.email)
+                .role(this.role)
+                .build()
         );
     }
 
