@@ -17,8 +17,8 @@ public class PostCreateDto {
     @NotEmpty
     private String title;
     private String contents;
-    @NotNull    // 숫자는 NotEmpty 불가
-    private Long authorId;
+//    @NotNull    // 숫자는 NotEmpty 불가
+//    private Long authorId;     // Authentication 설정 이후 authorId 필요없음
     private String delYn;
 
     public Post toEntity(Author author) {

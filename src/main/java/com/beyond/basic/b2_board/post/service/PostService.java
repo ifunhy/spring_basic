@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,9 @@ public class PostService {
 
 
     public void save(PostCreateDto dto) {
-        Author author = authorRepository.findById(dto.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // SCH안의 getContext에 Authentication 객체를 세팅
+        String email = authentication.getName();    // 이름 == claims의 subject == email
+        Author author = authorRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         // authorId의 존재 여부 검증 필요
         postRepository.save(dto.toEntity(author));  // author 객체를 넘겨줌
     }

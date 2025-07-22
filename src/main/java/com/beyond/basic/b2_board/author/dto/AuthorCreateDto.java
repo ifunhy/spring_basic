@@ -21,8 +21,8 @@ public class AuthorCreateDto {
     @NotEmpty(message = "password은 필수 입력 항목입니다.")
     @Size(min = 8, message = "password의 길이가 너무 짧습니다.")
     private String password;
-    // 문자열로 값이 넘어오면 Role에 값으로 매핑
-    private Role role = Role.USER;
+//    // 문자열로 값이 넘어오면 Role에 값으로 매핑
+//    private Role role = Role.USER;    // 서버를 시작하자마자 USER 계정을 생성하는 실습 위해 주석처리
 
     // @Builder 어노테이션 실습을 위한 주석처리
 //    public Author authorToEntity() {
@@ -35,7 +35,7 @@ public class AuthorCreateDto {
                 .name(this.name)
                 .password(encodedPassword)
                 .email(this.email)
-                .role(this.role)
+                .role(Role.USER)    // default가 USER
                 .build()
         );
     }
