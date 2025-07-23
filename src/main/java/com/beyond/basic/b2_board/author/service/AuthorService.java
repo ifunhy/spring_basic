@@ -8,6 +8,7 @@ import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,25 +115,35 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 
     }
 
+//    @Transactional(readOnly = true)
+//    public AuthorDetailDto findById(Long id) throws NoSuchElementException {
+//        Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
+//
+////        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
+////        AuthorDetailDto dto = author.detailFromEntity();
+////        this.authorRepository.save(author);
+//
+//        // 연관관계 설정 없이 직접 조회해서 count값 찾는 경우
+////        List<Post> postList = postRepository.findByAuthor(author);
+////        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author, postList.size());
+//
+//        // OneToMany 설정을 통해 count값 찾는 경우
+//          AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
+//
+//        return (dto);
+//    }
+
+
+    // 내 정보 조회
     @Transactional(readOnly = true)
-    public AuthorDetailDto findById(Long id) throws NoSuchElementException {
-        Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
-
-//        AuthorDetailDto dto = new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getPassword());
-//        AuthorDetailDto dto = author.detailFromEntity();
-//        this.authorRepository.save(author);
-        
-        // 연관관계 설정 없이 직접 조회해서 count값 찾는 경우
-//        List<Post> postList = postRepository.findByAuthor(author);
-//        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author, postList.size());
-        
-        // OneToMany 설정을 통해 count값 찾는 경우
-          AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
-
+    public AuthorDetailDto myinfo() throws NoSuchElementException {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Author author = authorRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
+        AuthorDetailDto dto = AuthorDetailDto.fromEntity(author);
         return (dto);
     }
 
-
+    //비밀번호 수정
     // 상단의 @Transactional 어노테이션으로 인해 자동으로 업데이트 됨
     public void updatePassword(AuthorUpdatePwDto authorUpdatePwDto) {
         // 기존의 password를 newPassword로 교체
@@ -141,6 +152,7 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
         author.updatePw(authorUpdatePwDto.getPassword());
     }
 
+    // 회원 삭제
     public void delete(Long id) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 사용자입니다."));
         // id만 던져놓고 레포지토리에서 리스트 삭제 처리

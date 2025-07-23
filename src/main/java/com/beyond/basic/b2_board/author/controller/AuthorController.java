@@ -64,6 +64,7 @@ public class AuthorController {
     // 회원목록조회 : url 패턴("/author/list")
     @GetMapping("/list")
     // ADMIN 권한이 있는지를 authentication 객체에서 쉽게 확인
+    // 권한이 없을 경우 filterchain에서 에러 발생
     @PreAuthorize("hasRole('ADMIN')")
     public List<AuthorListDto> findAll() {
         return (authorService.findAll());
@@ -79,7 +80,7 @@ public class AuthorController {
     public ResponseEntity<?> findById(@PathVariable Long id) {
         try {
 //            return new (new ResponseEntity<CommonDto>())
-            return (new ResponseEntity<>(authorService.findById(id), HttpStatus.OK));
+            return (new ResponseEntity<>(authorService.myinfo(), HttpStatus.OK));
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             CommonErrorDto error = new CommonErrorDto(HttpStatus.NOT_FOUND.value(), e.getMessage());
@@ -87,6 +88,13 @@ public class AuthorController {
             // return (new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND));
         }
     }
+
+    // 내 정보 조회
+    @GetMapping("/myinfo")
+    public ResponseEntity<?> myinfo() {
+        return (new ResponseEntity<>(authorService.myinfo(), HttpStatus.OK));
+    }
+
 
     // 비밀번호수정 : url 패턴("/updatepw"), email/password로 수정할 수 있게 설정 -> json
     // get : 조회 / post : 등록 / patch : 부분 수정 / put : 대체 / delete : 삭제

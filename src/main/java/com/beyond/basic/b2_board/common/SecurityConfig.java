@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableMethodSecurity   // PreAuthorized 어노테이션을 사용하기 위한 설정
+@EnableMethodSecurity   // AuthorController에 있는 PreAuthorized 어노테이션을 사용하기 위한 설정
 public class SecurityConfig {
 
     // 내가 만든 객체는 @Component, 외부 라이브러리를 활용한 객체는 @Bean+ @Configuration
@@ -28,6 +28,9 @@ public class SecurityConfig {
     // @Component는 클래스 위에 붙여 클래스 자체를 싱글톤 객체로 생성
     // filter계층에서 filter로직을 커스텀
     private final JwtTokenFilter jwtTokenFilter;
+    private final JwtAuthenticationHandler jwtAuthenticationHandler;
+    private final JwtAuthorizationHandler jwtAuthorizationHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return (httpSecurity
@@ -43,6 +46,10 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // token을 검증하고, token검증을 통해 Authentication객체 생성
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(e ->
+                        e.authenticationEntryPoint(jwtAuthenticationHandler)    // 401의 경우 여기서 잡음. authentication 객체(토큰) 없을 시
+                         .accessDeniedHandler(jwtAuthorizationHandler)         // 403의 경우 여기서 잡음. 권한 없는 사용자 요청시(@PreAuthorize("hasRole('ADMIN')"))
+                )
                 // 예외 api 정책 설정 -> 특정 url에 대해서는 인증처리하지 않겠다
                 // authenticated() : 예외를 제외한 모든 요청에 대해서 Authentication객체가 생성되기를 요구
                 // httpRequest 중에 author/create 랑 author/doLogin 말고는 다 인증처리할 건데, 그 기준은 authenticated 객체의 유무
