@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,8 +41,18 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // SCH안의 getContext에 Authentication 객체를 세팅
         String email = authentication.getName();    // 이름 == claims의 subject == email
         Author author = authorRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
+        LocalDateTime appointmentTime = null;   // 예약여부(N -> 예약x, Y-> 예약o, 시간정보필요)
+
+        if (dto.getAppointment().equals("Y")) { // dto의 시간정보가 Y라면
+            if (dto.getAppointmentTime() == null || dto.getAppointmentTime().isEmpty()) {
+                throw new IllegalArgumentException("시간정보가 비워져 있습니다.");
+            }
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+            appointmentTime = LocalDateTime.parse(dto.getAppointmentTime(), dateTimeFormatter);   // 시간대 자르기
+        }
+
         // authorId의 존재 여부 검증 필요
-        postRepository.save(dto.toEntity(author));  // author 객체를 넘겨줌
+        postRepository.save(dto.toEntity(author, appointmentTime));  // author 객체를 넘겨줌
     }
 
     public PostDetailDto findById(Long id) {
@@ -73,7 +85,7 @@ public class PostService {
 //        // a 객체를 꺼내면 PostList에서 찾아서 리턴해줄게?
         
         // 페이지처리 findAll 호출 + delYn 처리
-        Page<Post> postList = postRepository.findAllByDelYn(pageable, "N");
+        Page<Post> postList = postRepository.findAllByDelYnAndAppointment(pageable, "N", "N");
 //        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));  // collect 로 형변환
         return (postList.map(a -> PostListDto.fromEntity(a)));  // 리턴타입이 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
 

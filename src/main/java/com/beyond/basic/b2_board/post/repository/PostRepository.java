@@ -39,5 +39,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Pageable 객체 안에는 페이지size, 페이지번호, 정렬기준 등이 포함
 //    Page<Post> findAll(Pageable pageable);
     // paging 처리 + delYn 적용
-    Page<Post> findAllByDelYn(Pageable pageable, String delYn);
+    Page<Post> findAllByDelYnAndAppointment(Pageable pageable, String delYn, String appointment);
+
+    List<Post> findByAppointment(String appointment);
+
 }

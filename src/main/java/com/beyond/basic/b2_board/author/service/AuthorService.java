@@ -73,6 +73,7 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
                 .contents(authorCreateDto.getName() + "입니다. 반갑습니다.")
                 // author객체가 db에 save되는 순간 EntityManager와 영속성컨텍스트에 의해 author객체에도 id값 생성
                 .author(author)
+                .delYn("N")
                 .build();
 //        postRepository.save(post);
         // 방법 2. cascade옵션 활용
