@@ -16,6 +16,7 @@ public class PostDetailDto {
     private String title;
     private String contents;
     private String authorEmail; // 조회 시 사용자의 id를 email로 보여주기 위함
+    private String category;
 
     // 관계성 설정을 하지 않았을 때
 //    public static PostDetailDto fromEntity(Post post, Author author) {
@@ -34,6 +35,7 @@ public class PostDetailDto {
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .authorEmail(post.getAuthor().getEmail())
+                .category(post.getCategory())
                 .build();
     }
 }

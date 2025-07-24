@@ -6,12 +6,18 @@ import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.dto.PostCreateDto;
 import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
+import com.beyond.basic.b2_board.post.dto.PostSearchDto;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,7 +72,7 @@ public class PostService {
         return (PostDetailDto.fromEntity(post));    // post 안에 author가 들어가 있어서 post만 넘겨도 됨
     }
 
-    public Page<PostListDto> findAll(Pageable pageable) {
+    public Page<PostListDto> findAll(Pageable pageable, PostSearchDto dto) {
         // 내 코드
 //        return (postRepository.findAll().stream().map(PostListDto::fromEntity).collect(Collectors.toList()));
 
@@ -83,12 +90,40 @@ public class PostService {
 ////        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));
 //        return (postList.map(a -> PostListDto.fromEntity(a)));  // 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
 //        // a 객체를 꺼내면 PostList에서 찾아서 리턴해줄게?
-        
+
+        // 검색을 위해 Specification 객체를 스프링에서 제공
         // 페이지처리 findAll 호출 + delYn 처리
-        Page<Post> postList = postRepository.findAllByDelYnAndAppointment(pageable, "N", "N");
+        // dto에서 넘어온 객체를 specification 변수 선언하여 처리 -> new new Specification<Post>() 하고 오버라이딩 필요
+        // specification객체는 복잡한 쿼리를 명세를 이용하여 정의하는 방식으로, 쿼리를 쉽게 생성
+        // 검색할 객체, 페이징 처리를 위한 객체를 넘기면 spring에서 자동으로 처리
+        Specification<Post> specification = new Specification<Post>() {
+            @Override
+            public Predicate toPredicate(Root<Post> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                // Root : Entity의 속성을 접근하기 위한 객체, CriteriaBuilder : 쿼리를 생성하기 위한 객체
+                List<Predicate> predicateList = new ArrayList<>();  // Predicate는 조건이라 생각하면 됨
+                predicateList.add(criteriaBuilder.equal(root.get("delYn"), "N")); // select * from post where del_yn="N"
+                predicateList.add(criteriaBuilder.equal(root.get("appointment"), "N")); // and appointment="N"
+                if (dto.getCategory() != null) {    // and category=inputCategory (동적)
+                    predicateList.add(criteriaBuilder.equal(root.get("category"), dto.getCategory()));
+                }
+                if (dto.getTitle() != null) {   // and title like"%inputTitle%" (동적)
+                    predicateList.add(criteriaBuilder.like(root.get("title"), "%" + dto.getTitle() + "%"));
+                }
+                Predicate[] predicateArr = new Predicate[predicateList.size()];
+
+                for (int i = 0; i < predicateList.size(); i++) {
+                    predicateArr[i] = predicateList.get(i);
+                }
+
+                // 위의 검색 조건들을 하나(한줄)의 Predicate형 객체로 만들어서 return
+                Predicate predicate = criteriaBuilder.and(predicateArr);
+
+                return (predicate);    // Predicate형 객체로 리턴
+            }
+        };
+        Page<Post> postList = postRepository.findAll(specification ,pageable);  // 삭제되지 않고, 예약하지 않은 글만 조회
 //        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));  // collect 로 형변환
         return (postList.map(a -> PostListDto.fromEntity(a)));  // 리턴타입이 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
-
     }
 
 

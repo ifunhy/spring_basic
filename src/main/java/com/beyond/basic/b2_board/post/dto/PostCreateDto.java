@@ -17,16 +17,25 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class PostCreateDto {
+
     @NotEmpty
     private String title;
+
     private String contents;
-//    @NotNull    // 숫자는 NotEmpty 불가
+
+    //    @NotNull    // 숫자는 NotEmpty 불가
 //    private Long authorId;     // Authentication 설정 이후 authorId 필요없음
+
     private String delYn;
+
     @Builder.Default
     private String appointment = "N";   // 예약여부의 Default는 N
+
     // 시간 정보는 직접 LocalDateTime으로 형변환하는 경우가 많음
     private String appointmentTime; // 예약시간
+
+    private String category;    // 검색을 위한 카테고리
+
 
     public Post toEntity(Author author, LocalDateTime appointmentTime) {
 
@@ -38,6 +47,7 @@ public class PostCreateDto {
                 .appointment(this.appointment)
                 .appointmentTime(appointmentTime)
                 .delYn("N")     // default 값은 N
+                .category(this.category)
                 .build());
     }
 }

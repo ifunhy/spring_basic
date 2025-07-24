@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -40,6 +41,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 //    Page<Post> findAll(Pageable pageable);
     // paging 처리 + delYn 적용
     Page<Post> findAllByDelYnAndAppointment(Pageable pageable, String delYn, String appointment);
+
+    // paging 처리 + 검색(specification)
+    // 검색할 객체, 페이징 처리를 위한 객체를 넘기면 spring에서 자동으로 처리
+    Page<Post> findAll(Specification<Post> specification, Pageable pageable);
 
     List<Post> findByAppointment(String appointment);
 
