@@ -125,6 +125,4 @@ public class PostService {
 //        return (postList.stream().map(a -> PostListDto.fromEntity(a)).collect(Collectors.toList()));  // collect 로 형변환
         return (postList.map(a -> PostListDto.fromEntity(a)));  // 리턴타입이 리스트가 아니기 때문에 stream하면서 toList() 조회할 필요 없음
     }
-
-
 }
