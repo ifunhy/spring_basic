@@ -24,19 +24,26 @@ import java.util.List;
 @Builder    // Builder어노테이션을 통해 유연하게 객체 생성 가능
 // 회원 한 명의 정보를 담는 도메인 객체(Entity)
 public class Author extends BaseTimeEntity {
+
     @Id     // pk 설정
-    // identity : auto_increment, auto : id 생성전략을 jpa에게 자동설정하도록 위임하는 것
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // identity : auto_increment, auto : id 생성전략을 jpa에게 자동설정하도록 위임하는 것
     private Long id;
+
     // 컬럼에 별다른 설정이 없을 경우 default varchar(255)
     private String name;
+
     @Column(length = 50, unique = true, nullable = false)   // 길이 50 한도, unique, notnull 설정
     private String email;
-//    @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 개발의 혼선을 줄일 수 있음
+
+    // @Column(name = "pw") : 되도록이면 컬럼명과 변수명을 일치시키는 것이 개발의 혼선을 줄일 수 있음
     private String password;
+
     @Enumerated(EnumType.STRING)
     @Builder.Default    // Builder 패턴에서 변수 초기화(디폴트값) 시 Builder.Default어노테이션 필수
     private Role role = Role.USER;  // default를 USER로 설정
+
+    private String profileImage;
+
 
 
     // OneToMany는 선택사항, 또한 default가 lazy
@@ -78,5 +85,10 @@ public class Author extends BaseTimeEntity {
 
     public AuthorListDto listFromEntity() {
         return (new AuthorListDto(this.id, this.name, this.email, this.role));
+    }
+
+    // 이미지 이름 변경하여 업로드
+    public void updateImageUrl(String imgUrl) {
+        this.profileImage = imgUrl;
     }
 }

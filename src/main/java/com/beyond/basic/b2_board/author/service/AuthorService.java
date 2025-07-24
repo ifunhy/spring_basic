@@ -8,11 +8,18 @@ import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -49,9 +56,12 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
     private final AuthorRepository authorRepository;
     private final PostRepository postRepository;
     private final PasswordEncoder passwordEncoder;    // 암호화를 할 수 있는 클래스
+    private final S3Client s3Client;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     // 객체조립은 서비스 담당
-    public void save(AuthorCreateDto authorCreateDto) {
+    public void save(AuthorCreateDto authorCreateDto, MultipartFile profileImage) {
 //        // 이메일 중복 검증
         if (authorRepository.findByEmail(authorCreateDto.getEmail()).isPresent()) { // isPresent() : null 판단
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
@@ -65,20 +75,43 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 //        this.authorRepository.save(author);  // cascading 테스트를 위한 주석처리
 //        Author dbAuthor = this.authorRepository.save(author); // 저장하고 나서 db를 다시 조회한 값을 저장
 
-        // cascading 테스트 : 회원이 생성될 때, 곧바로 "가입인사" 글을 생성하는 상황
-        // 방법 2가지
-        // 방법 1. 직접 POST객체 생성 후 저장
-        Post post = Post.builder()
-                .title("안녕하세요.")
-                .contents(authorCreateDto.getName() + "입니다. 반갑습니다.")
-                // author객체가 db에 save되는 순간 EntityManager와 영속성컨텍스트에 의해 author객체에도 id값 생성
-                .author(author)
-                .delYn("N")
-                .build();
-//        postRepository.save(post);
-        // 방법 2. cascade옵션 활용
-        author.getPostList().add(post);
+//        // cascading 테스트 : 회원이 생성될 때, 곧바로 "가입인사" 글을 생성하는 상황
+//        // 방법 2가지
+//        // 방법 1. 직접 POST객체 생성 후 저장
+//        Post post = Post.builder()
+//                .title("안녕하세요.")
+//                .contents(authorCreateDto.getName() + "입니다. 반갑습니다.")
+//                // author객체가 db에 save되는 순간 EntityManager와 영속성컨텍스트에 의해 author객체에도 id값 생성
+//                .author(author)
+//                .delYn("N")
+//                .build();
+////        postRepository.save(post);
+//        // 방법 2. cascade옵션 활용
+//        author.getPostList().add(post);   // profileImage 실습을 위한 주석 처리
         this.authorRepository.save(author);
+
+        // image명 설정
+        String fileName = "user-" + author.getId() + "-profileimage-" + profileImage.getOriginalFilename();
+
+        // 저장 객체 구성
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(fileName)
+                .contentType(profileImage.getContentType()) // image/jpeg, video/mp4 ...
+                .build();
+
+        // 이미지를 업로드(byte형태로)
+        try {
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(profileImage.getBytes()));
+        } catch (IOException e) {
+            // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
+            throw new IllegalArgumentException("이미지 업로드 실패");
+        }
+
+        // 이미지 url 추출
+        String imgUrl = s3Client.utilities().getUrl(a -> a.bucket(bucket).key(fileName)).toExternalForm();
+
+        author.updateImageUrl(imgUrl);
     }
 
     // 로그인
