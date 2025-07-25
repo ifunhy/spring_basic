@@ -46,7 +46,7 @@ public class PostService {
 
     public void save(PostCreateDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // SCH안의 getContext에 Authentication 객체를 세팅
-        String email = authentication.getName();    // 이름 == claims의 subject == email
+        String email = authentication.getName();    // getName() == claims의 subject == email
         Author author = authorRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다."));
         LocalDateTime appointmentTime = null;   // 예약여부(N -> 예약x, Y-> 예약o, 시간정보필요)
 

@@ -45,7 +45,8 @@ public class JwtTokenFilter extends GenericFilter {
                     .parseClaimsJws(token)
                     .getBody();
             List<GrantedAuthority> authorities = new ArrayList<>();
-            // authentication 객체를 만들 대, 권한은 ROLE_ 라는 키워드를 붙여서 만들어 주는 것이 추후 문제 발생을 예방
+            // authentication 객체를 만들 때, 권한은 ROLE_ 라는 키워드를 붙여서 만들어 주는 것이 추후 문제 발생을 예방
+            // "ROLE_" 를 붙이는 이유는 @PreAuthorize 때문
             authorities.add(new SimpleGrantedAuthority("ROLE_" + claims.get("role")));  // 상속관계에 있는 Simple~을 이용하여 claims에서 role을 꺼내씀
             Authentication authentication = new UsernamePasswordAuthenticationToken(claims.getSubject(), "비우거나 토큰 넣음", authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication); // SCH안의 getContext에 Authentication 객체를 세팅

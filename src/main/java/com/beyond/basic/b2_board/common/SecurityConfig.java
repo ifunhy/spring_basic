@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // token을 검증하고, token검증을 통해 Authentication객체 생성
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e ->
+                .exceptionHandling(e ->     // filterChain에서 에러 터짐(Controller 아님)
                         e.authenticationEntryPoint(jwtAuthenticationHandler)    // 401의 경우 여기서 잡음. authentication 객체(토큰) 없을 시
                          .accessDeniedHandler(jwtAuthorizationHandler)         // 403의 경우 여기서 잡음. 권한 없는 사용자 요청시(@PreAuthorize("hasRole('ADMIN')"))
                 )

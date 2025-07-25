@@ -28,4 +28,10 @@ public class CommonExceptionHandler {
         String errorMessage = e.getBindingResult().getFieldError().getDefaultMessage();
         return (new ResponseEntity<>(new CommonErrorDto(HttpStatus.BAD_REQUEST.value(), errorMessage), HttpStatus.BAD_REQUEST));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> error(Exception e) {
+        String errorMessage = e.getMessage();
+        return (new ResponseEntity<>(new CommonErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorMessage), HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 }

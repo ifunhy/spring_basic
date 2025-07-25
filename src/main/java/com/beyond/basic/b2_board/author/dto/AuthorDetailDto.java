@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,8 @@ public class AuthorDetailDto {
     private Role role;  // 역할
     private Integer postCount; // 게시글 수
     private LocalDateTime createdTime;  // 생성시각
-    
+    private String profileImage;
+
 //    // 1개의 entity로만 dto가 조립되는 것이 아니기 때문에, dto계층에서 fromEntity를 설계
 //    public static AuthorDetailDto fromEntity(Author author, Integer postCount) {
 //            return (AuthorDetailDto.builder()
@@ -49,6 +51,7 @@ public class AuthorDetailDto {
 //                .postCount(postCount)
                 .postCount(author.getPostList().size())
                 .createdTime(author.getCreatedTime())
+                .profileImage(author.getProfileImage())
                 .build());  // builder 패턴으로 수정
 //        return (new AuthorDetailDto(author.getId(), author.getName(), author.getEmail(), author.getRole()));
     }

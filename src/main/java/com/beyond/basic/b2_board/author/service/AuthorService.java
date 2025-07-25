@@ -88,30 +88,35 @@ public class AuthorService {    // Controller에서 받은 요청을 처리하�
 ////        postRepository.save(post);
 //        // 방법 2. cascade옵션 활용
 //        author.getPostList().add(post);   // profileImage 실습을 위한 주석 처리
+
         this.authorRepository.save(author);
 
-        // image명 설정
-        String fileName = "user-" + author.getId() + "-profileimage-" + profileImage.getOriginalFilename();
-
-        // 저장 객체 구성
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(fileName)
-                .contentType(profileImage.getContentType()) // image/jpeg, video/mp4 ...
-                .build();
-
-        // 이미지를 업로드(byte형태로)
-        try {
-            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(profileImage.getBytes()));
-        } catch (IOException e) {
-            // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
-            throw new IllegalArgumentException("이미지 업로드 실패");
-        }
-
-        // 이미지 url 추출
-        String imgUrl = s3Client.utilities().getUrl(a -> a.bucket(bucket).key(fileName)).toExternalForm();
-
-        author.updateImageUrl(imgUrl);
+        // s3 설정 이유로 주석 처리
+//        // profileImage가 notnull인 경우에만 이미지를 올림
+//        if (profileImage != null) {
+//
+//            // image명 설정
+//            String fileName = "user-" + author.getId() + "-profileimage-" + profileImage.getOriginalFilename();
+//
+//            // 저장 객체 구성
+//            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+//                    .bucket(bucket)
+//                    .key(fileName)
+//                    .contentType(profileImage.getContentType()) // image/jpeg, video/mp4 ...
+//                    .build();
+//
+//            // 이미지를 업로드(byte형태로)
+//            try {
+//                s3Client.putObject(putObjectRequest, RequestBody.fromBytes(profileImage.getBytes()));
+//            } catch (Exception e) {
+//                // checked -> unchecked로 바꿔 전체 rollback 되도록 예외처리
+//                throw new IllegalArgumentException("이미지 업로드 실패");
+//            }
+//
+//            // 이미지 url 추출
+//            String imgUrl = s3Client.utilities().getUrl(a -> a.bucket(bucket).key(fileName)).toExternalForm();
+//            author.updateImageUrl(imgUrl);
+//        }
     }
 
     // 로그인

@@ -43,7 +43,8 @@ public class AuthorController {
     3. profileImage는 file로 세팅하면서 content-type을 multipart/form-data 설정
     */
     public ResponseEntity<String> save(@RequestPart(name = "authorCreateDto") @Valid AuthorCreateDto authorCreateDto,
-                                       @RequestPart(name = "profileImage")MultipartFile profileImage) {
+                                       @RequestPart(name = "profileImage", required = false)MultipartFile profileImage
+                                      ) {   // required = false 넣어도 되고 안 넣어도 됨
         System.out.println(profileImage.getOriginalFilename());
 //        try {
 //            this.authorService.save(authorCreateDto);
